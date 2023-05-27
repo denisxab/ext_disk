@@ -40,7 +40,7 @@ ansible-playbook -i ./WireguardVPN/inventory.yml -l reg_ru ./WireguardVPN/ansibe
 2. Скопировать этот файл конфигурации в папку
 
     ```bash
-    cp ИмяКонфигурации /etc/wireguard/
+    cp ИмяКонфигурации.conf /etc/wireguard/
     ```
 
 3. Подключение к VPN

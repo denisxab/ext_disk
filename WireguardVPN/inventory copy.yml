@@ -1,0 +1,9 @@
+---
+all:
+  hosts:
+    reg_ru:
+      ansible_host: IP_Адресс
+      ansible_user: root
+      ansible_port: 22
+      # Нужно установить = sudo apt install sshpass
+      ansible_ssh_pass: Пароль

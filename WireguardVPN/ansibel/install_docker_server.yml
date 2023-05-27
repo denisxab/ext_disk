@@ -1,0 +1,73 @@
+---
+- name: Установка и настройка сервера WireGuard
+  hosts: all
+  become: true
+  vars:
+      # INPUT - Пароль для сервера WireGuard
+      PasswordServer: "{{ PasswordServer }}"
+      #
+      container_name: wg_easy
+      container_image: weejewel/wg-easy
+  tasks:
+      - name: Установка Docker
+        import_tasks: ./utils/docker_install.yml
+
+      - name: Запуск Docker
+        block:
+            - name: Остановка Docker контейнера
+              command: "docker container stop {{ container_name }} "
+              ignore_errors: yes
+
+            - name: Docker container prune
+              command: "docker container prune -f"
+
+            # Источник: https://hub.docker.com/r/weejewel/wg-easy
+            - name: Запуск Docker контейнера
+              command: |
+                  docker run -d \
+                    --name={{ container_name }} \
+                    -e WG_HOST={{ ansible_host }} \
+                    -e PASSWORD={{ PasswordServer }} \
+                    -v /home/.{{ container_name }}:/etc/wireguard \
+                    -p 51820:51820/udp \
+                    -p 51821:51821/tcp \
+                    --cap-add=NET_ADMIN \
+                    --cap-add=SYS_MODULE \
+                    --sysctl="net.ipv4.conf.all.src_valid_mark=1" \
+                    --sysctl="net.ipv4.ip_forward=1" \
+                    --restart unless-stopped \
+                    {{ container_image }}
+
+      - name: Создание systemd-службы для контейнера
+        block:
+            - name: Создание конфигурационного автозапуска Docker
+              copy:
+                  dest: "/etc/systemd/system/{{ container_name }}.service"
+                  content: |
+                      [Unit]
+                      Description=Docker Container: {{ container_name }}
+                      Requires=docker.service
+                      After=docker.service
+
+                      [Service]
+                      Restart=always
+                      ExecStartPre=/usr/bin/docker pull {{ container_image }}
+                      ExecStart=/usr/bin/docker start -a {{ container_name }}
+                      ExecStop=/usr/bin/docker stop -t 10 {{ container_name }}
+
+                      [Install]
+                      WantedBy=multi-user.target
+
+            - name: Перезапуск systemd
+              systemd:
+                  name: "{{ container_name }}.service"
+                  daemon_reload: yes
+                  state: restarted
+
+            - name: Включение службы в автозапуск
+              systemd:
+                  name: "{{ container_name }}.service"
+                  enabled: yes
+
+            - name: Запуск контейнера Docker
+              command: "docker start {{ container_name }}"

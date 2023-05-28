@@ -15,7 +15,7 @@
 Установить и запустить Docker контейнер в WireGuard с WEB интерфейсом
 
 ```bash
-ansible-playbook -i ./WireguardVPN/inventory.yml -l reg_ru ./WireguardVPN/ansibel/install_docker_server.yml -e PasswordServer=990990
+ansible-playbook -i ./WireguardVPN/inventory.yml -l reg_ru ./WireguardVPN/ansible/install_docker_server.yml -e PasswordServer=990990
 ```
 
 -   `PasswordServer` - Указать пароль для WEB версии WireGuard

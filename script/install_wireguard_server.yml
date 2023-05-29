@@ -14,15 +14,15 @@
 
       - name: Запуск Docker
         block:
-            - name: Остановка Docker контейнера
+            - name: Остановка прошлого Docker контейнера(если ошибка, то игнорируем)
               command: "docker container stop {{ container_name }} "
               ignore_errors: yes
 
-            - name: Docker container prune
+            - name: Удалеям остановленные контейнеры
               command: "docker container prune -f"
 
             # Источник: https://hub.docker.com/r/weejewel/wg-easy
-            - name: Запуск Docker контейнера
+            - name: Запуск новый Docker контейнер
               command: |
                   docker run -d \
                     --name={{ container_name }} \
@@ -38,7 +38,7 @@
                     --restart unless-stopped \
                     {{ container_image }}
 
-      - name: Создание systemd-службы для контейнера
+      - name: Создание systemd-службы для авто заупска контейнера
         block:
             - name: Создание конфигурационного автозапуска Docker
               copy:

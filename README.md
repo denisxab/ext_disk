@@ -23,12 +23,16 @@ sudo apt install sshpass
 Далее создайте файл `inventory.yml`, в котором нужно указать данные для подключения к серверу, например:
 
 ```yml
-ИмяСервера:
-    ansible_host: IP_Адрес
-    ansible_user: Пользователь
-    ansible_port: 22
-    # Для этого бы установлен sshpass
-    ansible_ssh_pass: Пароль
+---
+all:
+    hosts:
+        ИмяСервера1:
+            ansible_host: IP_Адрес
+            ansible_user: Пользователь
+            # SSH порт
+            ansible_port: 22
+            # Для этого устанавливали sshpass
+            ansible_ssh_pass: Пароль
 ```
 
 Замените `ИмяСервера`, `IP_Адрес`, `Пользователь` и `Пароль` на соответствующие значения для вашего сервера.

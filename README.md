@@ -91,13 +91,18 @@ ansible-playbook -i ./inventory.yml -l ИмяСервера1 ./wireguard/install
 
 # Как развернуть NextCloud за одну команду
 
+Пример взят из https://github.com/nextcloud/docker/tree/master/.examples/docker-compose/insecure/postgres/fpm
+
 1. Чтобы передать эти переменные из командной строки при запуске `docker-compose`, выполните следующую команду:
 
-```bash
-ansible-playbook -i ./inventory.yml -l ИмяСервера1 ./nextcloud/install_nextcloud_server.yml
-```
+    ```bash
+    ansible-playbook -i ./inventory.yml -l ИмяСервера1 ./nextcloud/conf/install_nextcloud_server.yml -e POSTGRES_PASSWORD=10101010
+    ```
+
+    - `POSTGRES_PASSWORD` = Пароль от базы данных PostgreSQL
 
 2. Перейти на URL `Хост:8080`
 3. Создать учетную запись администратора. Например:
     - User: nextcloud
     - Password: nextcloud10101010
+4. **Выбираем пропустить рекомендуемые расширения**

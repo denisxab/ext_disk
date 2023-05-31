@@ -99,6 +99,5 @@ ansible-playbook -i ./inventory.yml -l ИмяСервера1 ./nextcloud/install
 
 2. Перейти на URL `Хост:8080`
 3. Создать учетную запись администратора. Например:
-    - Имя пользователя: nextcloud
-    - Пароль: 10101010
-    - MySQL пароль: 10101010
+    - User: nextcloud
+    - Password: nextcloud10101010

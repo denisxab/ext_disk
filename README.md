@@ -42,7 +42,7 @@ all:
 Теперь можно выполнить команду для развертывания WireGuard WEB UI сервера с помощью Docker-контейнера:
 
 ```bash
-ansible-playbook -i ./inventory.yml -l ИмяСервера1 ./script/install_wireguard_server.yml -e PasswordServer=990990
+ansible-playbook -i ./inventory.yml -l ИмяСервера1 ./wireguard/install_wireguard_server.yml -e PasswordServer=990990
 ```
 
 Здесь `ИмяСервера` - имя вашего сервера, `PasswordServer` - пароль для WEB-версии WireGuard. После успешного выполнения команды, WEB-версия WireGuard будет доступна по URL: `IP_Адрес:51821`. По умолчанию пароль `990990`
@@ -88,3 +88,17 @@ ansible-playbook -i ./inventory.yml -l ИмяСервера1 ./script/install_wi
     ```
 
 Теперь у вас есть свой собственный WireGuard VPN сервер с WEB-интерфейсом, развернутый с помощью Docker-контейнера. Вы можете подключиться к нему с различных устройств, включая телефоны и компьютеры с Linux. WireGuard предоставляет безопасное и эффективное шифрованное соединение, которое защищает вашу приватность и обеспечивает безопасность передачи данных в интернете.
+
+# Как развернуть NextCloud за одну команду
+
+1. Чтобы передать эти переменные из командной строки при запуске `docker-compose`, выполните следующую команду:
+
+```bash
+ansible-playbook -i ./inventory.yml -l ИмяСервера1 ./nextcloud/install_nextcloud_server.yml
+```
+
+2. Перейти на URL `Хост:8080`
+3. Создать учетную запись администратора. Например:
+    - Имя пользователя: nextcloud
+    - Пароль: 10101010
+    - MySQL пароль: 10101010

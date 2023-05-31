@@ -1,0 +1,20 @@
+---
+- name: Установка и настройка сервера NextClouduser
+  hosts: all
+  become: true
+  vars:
+      # INPUT - Пароль для сервера WireGuard
+      PasswordServer: "{{ PasswordServer }}"
+
+  tasks:
+      - name: Установка Docker
+        import_tasks: ../../script/docker_install.yml
+
+      - name: Копирование docker-compose на удаленный сервер
+        synchronize:
+            src: "../conf"
+            dest: "/home/nextcloud/"
+            delete: yes
+
+      # - name: Запуск docker-compose
+      #   shell: docker-compose up

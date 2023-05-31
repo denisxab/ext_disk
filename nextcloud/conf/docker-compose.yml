@@ -32,8 +32,13 @@ services:
         restart: always
         ports:
             - 8080:80
+            - 443:443
         volumes:
             - /home/nextcloud/nextcloud:/var/www/html:z,ro
+            # Путь к вашему SSL-сертификату
+            - /home/nextcloud/ssl/certificate.crt:/etc/ssl/certs/nginx.crt:ro
+            # Путь к вашему приватному ключу SSL-сертификата
+            - /home/nextcloud/ssl/private_key:/etc/ssl/private/nginx.key:ro
         depends_on:
             - app
 

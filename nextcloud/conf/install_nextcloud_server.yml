@@ -14,7 +14,7 @@
       - name: Установка Docker
         import_tasks: ../../script/docker_install.yml
 
-      - name: Копирование docker-compose на удаленный сервер
+      - name: Копирование папки conf на удаленный сервер
         synchronize:
             src: "../conf"
             dest: "{{PATH_NEXTCLOUD}}"
@@ -25,10 +25,30 @@
             src: db.j2
             dest: "{{PATH_NEXTCLOUD}}/conf/db.env"
 
+      - name: Создание SSL сертификата
+        block:
+            - name: Проверка наличия SSL-сертификата
+              stat:
+                  path: "{{ item }}"
+              register: ssl_cert_files
+              failed_when: false
+              loop:
+                  - "{{ PATH_NEXTCLOUD }}/ssl/private_key"
+                  - "{{ PATH_NEXTCLOUD }}/ssl/certificate.crt"
+
+            - name: Создать SSL сертификат
+              shell: "mkdir -p {{ PATH_NEXTCLOUD }}/ssl && openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout {{ PATH_NEXTCLOUD }}/ssl/private_key -out {{ PATH_NEXTCLOUD }}/ssl/certificate.crt -subj '/C=RU'"
+              when: not ssl_cert_files.results[0].stat.exists or not ssl_cert_files.results[1].stat.exists
+
       - name: docker-compose
         block:
             - name: Остановить docker-compose
               command: docker-compose down
+              args:
+                  chdir: "{{PATH_NEXTCLOUD}}/conf"
+
+            - name: Сборка docker-compose
+              command: docker-compose build
               args:
                   chdir: "{{PATH_NEXTCLOUD}}/conf"
 

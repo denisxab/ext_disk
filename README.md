@@ -91,12 +91,14 @@ ansible-playbook -i ./inventory.yml -l ИмяСервера1 ./wireguard/install
 
 # Как развернуть NextCloud на HTTPS за одну команду
 
+## Вот та единственная команда
+
 Пример взят из https://github.com/nextcloud/docker/tree/master/.examples/docker-compose/insecure/postgres/fpm
 
 1. Чтобы передать эти переменные из командной строки при запуске `docker-compose`, выполните следующую команду:
 
     ```bash
-    ansible-playbook -i ./inventory.yml -l ИмяСервера1 ./nextcloud/conf/install_nextcloud_server.yml -e POSTGRES_PASSWORD=10101010
+    ansible-playbook -i ./inventory.yml -l ИмяСервера1 ./nextcloud/install_nextcloud_server.yml -e POSTGRES_PASSWORD=10101010
     ```
 
     - `POSTGRES_PASSWORD` = Пароль от базы данных PostgreSQL
@@ -108,3 +110,11 @@ ansible-playbook -i ./inventory.yml -l ИмяСервера1 ./wireguard/install
     - User: nextcloud
     - Password: nextcloud10101010
 5. **Выбираем пропустить рекомендуемые расширения**
+
+## Сделать Backup всех файлов NextCloud через RSYNC
+
+```bash
+ansible-playbook -i ./inventory.yml -l ИмяСервера1 ./nextcloud/backup_nextcloud_server.yml -e LOCAL_PATH_BACKUP="$HOME/backup_nextcloud"
+```
+
+-   `LOCAL_PATH_BACKUP` = Путь на локальной машине, куда сохранить бекап

@@ -1,0 +1,26 @@
+---
+- name: Бекап файлов из сервера NextCloud
+  hosts: all
+  become: true
+  vars:
+      # INPUT - Путь на локальной машине, куда сохранить бекап
+      LOCAL_PATH_BACKUP: "{{LOCAL_PATH_BACKUP}}"
+      #
+      #
+      FOLDER: nextcloud_data
+  tasks:
+      - name: Копирование папки conf на удаленный сервер
+        synchronize:
+            src: "/home/nextcloud/{{FOLDER}}"
+            dest: "{{LOCAL_PATH_BACKUP}}"
+            recursive: yes
+            mode: "pull"
+            delete: yes
+
+      - name: LOCAL_PATH_BACKUP
+        debug:
+            msg: "{{LOCAL_PATH_BACKUP}}"
+
+      - name: Сжатие папки ssl
+        command: "tar -czf {{LOCAL_PATH_BACKUP}}/{{FOLDER}}.tar.gz  -C {{LOCAL_PATH_BACKUP}}/{{FOLDER}} ."
+        delegate_to: localhost

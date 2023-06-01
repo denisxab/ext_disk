@@ -1,5 +1,5 @@
 ---
-- name: Установка и настройка сервера NextClouduser
+- name: Установка и настройка сервера NextCloud
   hosts: all
   become: true
   vars:
@@ -12,11 +12,11 @@
       PATH_NEXTCLOUD: "/home/nextcloud"
   tasks:
       - name: Установка Docker
-        import_tasks: ../../script/docker_install.yml
+        import_tasks: ../script/docker_install.yml
 
       - name: Копирование папки conf на удаленный сервер
         synchronize:
-            src: "../conf"
+            src: "./conf"
             dest: "{{PATH_NEXTCLOUD}}"
             delete: yes
 

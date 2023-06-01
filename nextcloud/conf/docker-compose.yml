@@ -17,7 +17,10 @@ services:
         image: nextcloud:fpm-alpine
         restart: always
         volumes:
+            # Основыныая папка NextCloud
             - /home/nextcloud/nextcloud:/var/www/html:z
+            # Папка с файлами
+            - /home/nextcloud/nextcloud_data:/var/www/html/data:z
         environment:
             - POSTGRES_HOST=db
             - REDIS_HOST=redis

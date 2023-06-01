@@ -91,30 +91,30 @@ ansible-playbook -i ./inventory.yml -l ИмяСервера1 ./wireguard/install
 
 # Как развернуть NextCloud на HTTPS за одну команду
 
-## Вот та единственная команда
+## Единая команда развёртывания NextCloud на HTTPS
 
-Пример взят из https://github.com/nextcloud/docker/tree/master/.examples/docker-compose/insecure/postgres/fpm
+Пример команды развёртывания NextCloud на HTTPS можно взять из репозитория NextCloud Docker на GitHub: [https://github.com/nextcloud/docker/tree/master/.examples/docker-compose/insecure/postgres/fpm](https://github.com/nextcloud/docker/tree/master/.examples/docker-compose/insecure/postgres/fpm).
 
-1. Чтобы передать эти переменные из командной строки при запуске `docker-compose`, выполните следующую команду:
+1. Выполните следующую команду, чтобы передать переменные из командной строки во время запуска `docker-compose`:
 
     ```bash
     ansible-playbook -i ./inventory.yml -l ИмяСервера1 ./nextcloud/install_nextcloud_server.yml -e POSTGRES_PASSWORD=10101010
     ```
 
-    - `POSTGRES_PASSWORD` = Пароль от базы данных PostgreSQL
+    - `POSTGRES_PASSWORD` - пароль для базы данных PostgreSQL.
 
-2. Подождать 2 минуты запуска всех приложений
-3. Перейти на URL `https://Хост`
-4. Создать учетную запись администратора.
-   Например:
-    - User: nextcloud
-    - Password: nextcloud10101010
-5. **Выбираем пропустить рекомендуемые расширения**
+2. Подождите около 2 минут для запуска всех приложений.
+3. Перейдите по URL-адресу `https://Хост`.
+4. Создайте учётную запись администратора с указанием следующих данных:
+    - Пользователь: nextcloud
+    - Пароль: nextcloud10101010
+5. **Рекомендуется пропустить установку рекомендуемых расширений**.
 
-## Сделать Backup всех файлов NextCloud через RSYNC
+## Создание резервной копии всех файлов NextCloud с помощью RSYNC
 
 ```bash
-ansible-playbook -i ./inventory.yml -l ИмяСервера1 ./nextcloud/backup_nextcloud_server.yml -e LOCAL_PATH_BACKUP="$HOME/backup_nextcloud"
+DISK=$HOME
+ansible-playbook -i ./inventory.yml -l ИмяСервера1 ./nextcloud/backup_nextcloud_server.yml -e LOCAL_PATH_BACKUP="$DISK/backup_nextcloud"
 ```
 
--   `LOCAL_PATH_BACKUP` = Путь на локальной машине, куда сохранить бекап
+-   `LOCAL_PATH_BACKUP` - путь на локальной машине, куда будет сохранена резервная копия (укажите ответ на русском языке).

@@ -1,2 +1,5 @@
 inventory.yml
 .vscode
+*.AppImage
+*.7z
+*.img

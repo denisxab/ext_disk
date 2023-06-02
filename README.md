@@ -114,7 +114,7 @@ ansible-playbook -i ./inventory.yml -l ИмяСервера1 ./wireguard/install
 
 ```bash
 DISK=$HOME
-ansible-playbook -i ./inventory.yml -l ИмяСервера1 ./nextcloud/backup_nextcloud_server.yml -e LOCAL_PATH_BACKUP="$DISK/backup_nextcloud"
+ansible-playbook -i ./inventory.yml -v -l ИмяСервера1 ./nextcloud/backup_nextcloud_server.yml -e LOCAL_PATH_BACKUP="$DISK/backup_nextcloud"
 ```
 
 -   `LOCAL_PATH_BACKUP` - путь на локальной машине, куда будет сохранена резервная копия (укажите ответ на русском языке).

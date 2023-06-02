@@ -1,7 +1,6 @@
 ---
 - name: Бекап файлов из сервера NextCloud
   hosts: all
-  become: true
   vars:
       # INPUT - Путь на локальной машине, куда сохранить бекап
       LOCAL_PATH_BACKUP: "{{LOCAL_PATH_BACKUP}}"
@@ -21,6 +20,6 @@
         debug:
             msg: "{{LOCAL_PATH_BACKUP}}"
 
-      - name: Сжатие папки ssl
+      - name: Сжатие папки {{LOCAL_PATH_BACKUP}}
         command: "tar -czf {{LOCAL_PATH_BACKUP}}/{{FOLDER}}.tar.gz  -C {{LOCAL_PATH_BACKUP}}/{{FOLDER}} ."
         delegate_to: localhost

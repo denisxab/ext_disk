@@ -12,14 +12,26 @@
       PATH_NEXTCLOUD: "/home/nextcloud"
       PATH_NEXTCLOUD_DATA: "/mnt/extdisk/nextcloud"
   tasks:
-      - name: Установка Docker
-        import_tasks: ../script/docker_install.yml
-
       - name: Установка wireguard
         apt:
             name:
                 - wireguard
             state: present
+
+      - name: Скопировать конфигурацию для wireguard
+        synchronize:
+            src: "../self_config/orangepizero2.conf"
+            dest: "/etc/wireguard"
+            delete: yes
+
+      - name: Включить Wireguard VPN
+        command: wg-quick down orangepizero2
+
+      - name: Выключить Wireguard VPN
+        command: wg-quick up orangepizero2
+
+      - name: Установка Docker
+        import_tasks: ../script/docker_install.yml
 
       - name: Копирование папки conf на удаленный сервер
         synchronize:
@@ -64,7 +76,7 @@
               args:
                   chdir: "{{PATH_NEXTCLOUD}}/conf"
 
-            - name: Чтение файла config.php
+            - name: Разрешить все подключения от разных доменных имен в файле config.php
               ansible.builtin.replace:
                   path: "{{PATH_NEXTCLOUD_DATA}}/nextcloud/config/config.php"
                   regexp: "^(\\s*'trusted_domains'\\s*=>).*"

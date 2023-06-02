@@ -28,7 +28,8 @@
     state: present
     install_recommends: yes
   loop:
-    - docker-ce
-    - docker-ce-cli
-    - containerd.io
+    - docker.io
+    # - docker-ce-cli
+    # - containerd.io
+    # - docker-ce
     - docker-compose

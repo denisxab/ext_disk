@@ -18,7 +18,7 @@
               command: "docker container stop {{ container_name }} "
               ignore_errors: yes
 
-            - name: Удалеям остановленные контейнеры
+            - name: Удаляем остановленные контейнеры
               command: "docker container prune -f"
 
             # Источник: https://hub.docker.com/r/weejewel/wg-easy

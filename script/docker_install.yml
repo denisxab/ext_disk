@@ -6,6 +6,10 @@
   apt:
     name:
       - gnupg
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - software-properties-common
     state: present
 
 - name: Добавить Docker GPG ключ
@@ -25,4 +29,6 @@
     install_recommends: yes
   loop:
     - docker-ce
+    - docker-ce-cli
+    - containerd.io
     - docker-compose

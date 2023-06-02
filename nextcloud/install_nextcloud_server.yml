@@ -10,9 +10,16 @@
       POSTGRES_USER: "nextcloud"
       POSTGRES_DB: "{{POSTGRES_USER}}"
       PATH_NEXTCLOUD: "/home/nextcloud"
+      PATH_NEXTCLOUD_DATA: "/mnt/extdisk/nextcloud"
   tasks:
       - name: Установка Docker
         import_tasks: ../script/docker_install.yml
+
+      - name: Установка wireguard
+        apt:
+            name:
+                - wireguard
+            state: present
 
       - name: Копирование папки conf на удаленный сервер
         synchronize:
@@ -49,6 +56,22 @@
 
             - name: Сборка docker-compose
               command: docker-compose build
+              args:
+                  chdir: "{{PATH_NEXTCLOUD}}/conf"
+
+            - name: Запуск docker-compose
+              command: docker-compose up -d
+              args:
+                  chdir: "{{PATH_NEXTCLOUD}}/conf"
+
+            - name: Чтение файла config.php
+              ansible.builtin.replace:
+                  path: "{{PATH_NEXTCLOUD_DATA}}/nextcloud/config/config.php"
+                  regexp: "^(\\s*'trusted_domains'\\s*=>).*"
+                  replace: "\\1 array(0 => '*'),"
+
+            - name: Остановить docker-compose
+              command: docker-compose down
               args:
                   chdir: "{{PATH_NEXTCLOUD}}/conf"
 

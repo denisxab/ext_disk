@@ -5,7 +5,7 @@ services:
         image: postgres:alpine
         restart: always
         volumes:
-            - /home/nextcloud/db:/var/lib/postgresql/data:z
+            - /mnt/extdisk/nextcloud/db:/var/lib/postgresql/data:z
         env_file:
             - db.env
 
@@ -18,9 +18,9 @@ services:
         restart: always
         volumes:
             # Основыныая папка NextCloud
-            - /home/nextcloud/nextcloud:/var/www/html:z
+            - /mnt/extdisk/nextcloud/nextcloud:/var/www/html:z
             # Папка с файлами
-            - /home/nextcloud/nextcloud_data:/var/www/html/data:z
+            - /mnt/extdisk/nextcloud/nextcloud_data:/var/www/html/data:z
         environment:
             - POSTGRES_HOST=db
             - REDIS_HOST=redis
@@ -37,11 +37,11 @@ services:
             - 8080:80
             - 443:443
         volumes:
-            - /home/nextcloud/nextcloud:/var/www/html:z,ro
+            - /mnt/extdisk/nextcloud/nextcloud:/var/www/html:z,ro
             # Путь к вашему SSL-сертификату
-            - /home/nextcloud/ssl/certificate.crt:/etc/ssl/certs/nginx.crt:ro
+            - /mnt/extdisk/nextcloud/ssl/certificate.crt:/etc/ssl/certs/nginx.crt:ro
             # Путь к вашему приватному ключу SSL-сертификата
-            - /home/nextcloud/ssl/private_key:/etc/ssl/private/nginx.key:ro
+            - /mnt/extdisk/nextcloud/ssl/private_key:/etc/ssl/private/nginx.key:ro
         depends_on:
             - app
 
@@ -49,7 +49,7 @@ services:
         image: nextcloud:fpm-alpine
         restart: always
         volumes:
-            - /home/nextcloud/nextcloud:/var/www/html:z
+            - /mnt/extdisk/nextcloud/nextcloud:/var/www/html:z
         entrypoint: /cron.sh
         depends_on:
             - db

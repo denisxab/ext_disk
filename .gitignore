@@ -3,3 +3,4 @@ inventory.yml
 *.AppImage
 *.7z
 *.img
+self_config

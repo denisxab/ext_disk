@@ -71,3 +71,4 @@
 
             - name: Запуск контейнера Docker
               command: "docker start {{ container_name }}"
+

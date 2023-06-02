@@ -22,7 +22,7 @@
 
       - name: Создание файла из шаблона
         template:
-            src: db.j2
+            src: ./conf/db.j2
             dest: "{{PATH_NEXTCLOUD}}/conf/db.env"
 
       - name: Создание SSL сертификата

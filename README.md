@@ -97,11 +97,11 @@ ansible-playbook -i ./inventory.yml -l ИмяСервера1 ./wireguard/install
 
 1. Выполните следующую команду, чтобы передать переменные из командной строки во время запуска `docker-compose`:
 
-    ```bash
-    ansible-playbook -i ./inventory.yml -l ИмяСервера1 ./nextcloud/install_nextcloud_server.yml -e POSTGRES_PASSWORD=10101010
-    ```
+```bash
+ansible-playbook -i ./inventory.yml -l ИмяСервера1 ./nextcloud/install_nextcloud_server.yml -e POSTGRES_PASSWORD=10101010
+```
 
-    - `POSTGRES_PASSWORD` - пароль для базы данных PostgreSQL.
+- `POSTGRES_PASSWORD` - пароль для базы данных PostgreSQL.
 
 2. Подождите около 2 минут для запуска всех приложений.
 3. Перейдите по URL-адресу `https://Хост`.

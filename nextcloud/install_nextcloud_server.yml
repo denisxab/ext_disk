@@ -5,9 +5,10 @@
   vars:
       POSTGRES_USER: "nextcloud"
       POSTGRES_DB: "{{ POSTGRES_USER }}"
-      PATH_NEXTCLOUD: "/home/nextcloud"
+      PATH_NEXTCLOUD_CONF: "/home/nextcloud"
       PATH_NEXTCLOUD_DATA: "/mnt/extdisk/nextcloud"
       NAME_WIREGUARD_CONF: nextcloudserver
+      PATH_TO_DOCKER_COMPOSE_FILE: "{{ PATH_NEXTCLOUD_CONF }}/conf"
 
   tasks:
       - name: Настройка WireGuard
@@ -17,10 +18,11 @@
               apt:
                   update_cache: yes
 
-            - name: Установка WireGuard
+            - name: Установка WireGuard-tools
               apt:
                   name:
-                      - wireguard
+                      # Не устаналиваейте "wireguard" он ломает доступ в интернет. Устанавливайте "wireguard-tools"
+                      - wireguard-tools
                   state: present
 
             - name: Скопировать конфигурацию для WireGuard
@@ -40,13 +42,13 @@
             - name: Копирование папки conf на удаленный сервер
               synchronize:
                   src: "./conf"
-                  dest: "{{ PATH_NEXTCLOUD }}"
+                  dest: "{{ PATH_NEXTCLOUD_CONF }}"
                   delete: yes
 
             - name: Создание файла из шаблона
               template:
                   src: "./conf/db.j2"
-                  dest: "{{ PATH_NEXTCLOUD }}/conf/db.env"
+                  dest: "{{ PATH_NEXTCLOUD_CONF }}/conf/.env"
 
       - name: Настройка SSL сертификата
         block:
@@ -56,11 +58,11 @@
               register: ssl_cert_files
               failed_when: false
               loop:
-                  - "{{ PATH_NEXTCLOUD }}/ssl/private_key"
-                  - "{{ PATH_NEXTCLOUD }}/ssl/certificate.crt"
+                  - "{{ PATH_NEXTCLOUD_DATA }}/ssl/private_key"
+                  - "{{ PATH_NEXTCLOUD_DATA }}/ssl/certificate.crt"
 
             - name: Создать SSL сертификат
-              shell: "mkdir -p {{ PATH_NEXTCLOUD }}/ssl && openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout {{ PATH_NEXTCLOUD }}/ssl/private_key -out {{ PATH_NEXTCLOUD }}/ssl/certificate.crt -subj '/C=RU'"
+              shell: "mkdir -p {{ PATH_NEXTCLOUD_DATA }}/ssl && openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout {{ PATH_NEXTCLOUD_DATA }}/ssl/private_key -out {{ PATH_NEXTCLOUD_DATA }}/ssl/certificate.crt -subj '/C=RU'"
               when: not ssl_cert_files.results[0].stat.exists or not ssl_cert_files.results[1].stat.exists
 
       - name: Настройка docker-compose
@@ -68,21 +70,53 @@
             - name: Установка Docker
               import_tasks: ../script/docker_install.yml
 
+            - name: Проверка наличия SSL-сертификата
+              stat:
+                  path: "{{ PATH_NEXTCLOUD_DATA }}/nextcloud/config/config.php"
+              register: stat_config_php
+              failed_when: false
+
+            - name: Разрешить все подключения от разных доменных имен в файле config.php
+              ansible.builtin.replace:
+                  path: "{{ PATH_NEXTCLOUD_DATA }}/nextcloud/config/config.php"
+                  regexp: "^(\\s*'trusted_domains'\\s*=>).*"
+                  replace: "\\1 array(0 => '*'),"
+              when: stat_config_php.stat.exists
+
             - name: Остановить docker-compose
               command: docker-compose down
               args:
-                  chdir: "{{ PATH_NEXTCLOUD }}/conf"
+                  chdir: "{{ PATH_NEXTCLOUD_CONF }}/conf"
 
             - name: Сборка docker-compose
               command: docker-compose build
               args:
-                  chdir: "{{ PATH_NEXTCLOUD }}/conf"
+                  chdir: "{{ PATH_NEXTCLOUD_CONF }}/conf"
 
-            - name: Запуск docker-compose
-              command: docker-compose up -d
-              args:
-                  chdir: "{{ PATH_NEXTCLOUD }}/conf"
+            # - name: Запуск docker-compose
+            #   command: docker-compose up -d
+            #   args:
+            #       chdir: "{{ PATH_NEXTCLOUD_CONF }}/conf"
 
+      - name: Добавление docker-compose в автозапуск systemd
+        block:
+            - name: Создание службы docker-compose
+              template:
+                  src: "./conf/docker-compose.service.j2"
+                  dest: "/etc/systemd/system/nextcloudserver_docker_compose.service"
+
+            - name: Reload systemd
+              systemd:
+                  daemon_reload: yes
+
+            - name: Включение и запуск службы docker-compose
+              systemd:
+                  name: nextcloudserver_docker_compose
+                  state: started
+                  enabled: yes
+
+      - name: Изменение config.php в перый раз
+        block:
             - name: Разрешить все подключения от разных доменных имен в файле config.php
               ansible.builtin.replace:
                   path: "{{ PATH_NEXTCLOUD_DATA }}/nextcloud/config/config.php"
@@ -92,9 +126,10 @@
             - name: Остановить docker-compose
               command: docker-compose down
               args:
-                  chdir: "{{ PATH_NEXTCLOUD }}/conf"
+                  chdir: "{{ PATH_NEXTCLOUD_CONF }}/conf"
 
             - name: Запуск docker-compose
               command: docker-compose up -d
               args:
-                  chdir: "{{ PATH_NEXTCLOUD }}/conf"
+                  chdir: "{{ PATH_NEXTCLOUD_CONF }}/conf"
+        when: not stat_config_php.stat.exists

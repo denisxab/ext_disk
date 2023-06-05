@@ -2,25 +2,23 @@
   apt:
     update_cache: yes
 
-- name: Установить зависимостей для Docker
-  apt:
-    name:
-      - gnupg
-      - apt-transport-https
-      - ca-certificates
-      - curl
-      - software-properties-common
-    state: present
-
-- name: Добавить Docker GPG ключ
-  apt_key:
-    url: https://download.docker.com/linux/ubuntu/gpg
-    state: present
-
-- name: Добавление Docker репозитория
-  apt_repository:
-    repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
-    state: present
+# - name: Установить зависимостей для Docker
+#   apt:
+#     name:
+#       - gnupg
+#       - apt-transport-https
+#       - ca-certificates
+#       - curl
+#       - software-properties-common
+#     state: present
+# - name: Добавить Docker GPG ключ
+#   apt_key:
+#     url: https://download.docker.com/linux/ubuntu/gpg
+#     state: present
+# - name: Добавление Docker репозитория
+#   apt_repository:
+#     repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
+#     state: present
 
 - name: Установка Docker
   apt:
@@ -28,6 +26,7 @@
     state: present
     install_recommends: yes
   loop:
+    - apparmor-utils
     - docker.io
     # - docker-ce-cli
     # - containerd.io

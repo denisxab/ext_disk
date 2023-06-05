@@ -4,3 +4,5 @@ inventory.yml
 *.7z
 *.img
 self_config
+backup_root_server
+fix.md

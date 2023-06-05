@@ -3,11 +3,11 @@ version: "3"
 services:
     db:
         image: postgres:alpine
-        restart: always
+        # restart: always
         volumes:
-            - /mnt/extdisk/nextcloud/db:/var/lib/postgresql/data:z
+            - "${NEXTCLOUD_DATA}/db:/var/lib/postgresql/data:z"
         env_file:
-            - db.env
+            - .env
 
     redis:
         image: redis:alpine
@@ -15,41 +15,41 @@ services:
 
     app:
         image: nextcloud:fpm-alpine
-        restart: always
+        # restart: always
         volumes:
             # Основыныая папка NextCloud
-            - /mnt/extdisk/nextcloud/nextcloud:/var/www/html:z
+            - "${NEXTCLOUD_DATA}/nextcloud:/var/www/html:z"
             # Папка с файлами
-            - /mnt/extdisk/nextcloud/nextcloud_data:/var/www/html/data:z
+            - "${NEXTCLOUD_DATA}/nextcloud_data:/var/www/html/data:z"
         environment:
             - POSTGRES_HOST=db
             - REDIS_HOST=redis
         env_file:
-            - db.env
+            - .env
         depends_on:
             - db
             - redis
 
     web:
         build: ./web
-        restart: always
+        # restart: always
         ports:
             - 8080:80
             - 443:443
         volumes:
-            - /mnt/extdisk/nextcloud/nextcloud:/var/www/html:z,ro
+            - "${NEXTCLOUD_DATA}/nextcloud:/var/www/html:z,ro"
             # Путь к вашему SSL-сертификату
-            - /mnt/extdisk/nextcloud/ssl/certificate.crt:/etc/ssl/certs/nginx.crt:ro
+            - "${NEXTCLOUD_DATA}/ssl/certificate.crt:/etc/ssl/certs/nginx.crt:ro"
             # Путь к вашему приватному ключу SSL-сертификата
-            - /mnt/extdisk/nextcloud/ssl/private_key:/etc/ssl/private/nginx.key:ro
+            - "${NEXTCLOUD_DATA}/ssl/private_key:/etc/ssl/private/nginx.key:ro"
         depends_on:
             - app
 
     cron:
         image: nextcloud:fpm-alpine
-        restart: always
+        # restart: always
         volumes:
-            - /mnt/extdisk/nextcloud/nextcloud:/var/www/html:z
+            - "${NEXTCLOUD_DATA}/nextcloud:/var/www/html:z"
         entrypoint: /cron.sh
         depends_on:
             - db

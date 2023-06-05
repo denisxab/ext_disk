@@ -3,55 +3,52 @@
   hosts: all
   become: true
   vars:
-      # INPUT - Пароль от базы данных
-      POSTGRES_PASSWORD: "{{POSTGRES_PASSWORD}}"
-      #
-      #
       POSTGRES_USER: "nextcloud"
-      POSTGRES_DB: "{{POSTGRES_USER}}"
+      POSTGRES_DB: "{{ POSTGRES_USER }}"
       PATH_NEXTCLOUD: "/home/nextcloud"
       PATH_NEXTCLOUD_DATA: "/mnt/extdisk/nextcloud"
       NAME_WIREGUARD_CONF: nextcloudserver
+
   tasks:
-      - name: Настрйока wireguard
+      - name: Настройка WireGuard
         tags: wireguard
         block:
             - name: Обновление apt
               apt:
                   update_cache: yes
 
-            - name: Установка wireguard
+            - name: Установка WireGuard
               apt:
                   name:
                       - wireguard
                   state: present
 
-            - name: Скопировать конфигурацию для wireguard
+            - name: Скопировать конфигурацию для WireGuard
               synchronize:
-                  src: "../self_config/{{NAME_WIREGUARD_CONF}}.conf"
+                  src: "../self_config/{{ NAME_WIREGUARD_CONF }}.conf"
                   dest: "/etc/wireguard"
                   delete: yes
 
             - name: Запустить WireGuard
-              command: "systemctl start wg-quick@{{NAME_WIREGUARD_CONF}}"
-
-            - name: Добавить WireGuard в автозапуск
-              command: "systemctl enable wg-quick@{{NAME_WIREGUARD_CONF}}"
+              systemd:
+                  name: "wg-quick@{{ NAME_WIREGUARD_CONF }}"
+                  state: started
+                  enabled: yes
 
       - name: Копировать конфигурации для запуска NextCloud
         block:
             - name: Копирование папки conf на удаленный сервер
               synchronize:
                   src: "./conf"
-                  dest: "{{PATH_NEXTCLOUD}}"
+                  dest: "{{ PATH_NEXTCLOUD }}"
                   delete: yes
 
             - name: Создание файла из шаблона
               template:
-                  src: ./conf/db.j2
-                  dest: "{{PATH_NEXTCLOUD}}/conf/db.env"
+                  src: "./conf/db.j2"
+                  dest: "{{ PATH_NEXTCLOUD }}/conf/db.env"
 
-      - name: Настрйока SSL сертификата
+      - name: Настройка SSL сертификата
         block:
             - name: Проверка наличия SSL-сертификата
               stat:
@@ -74,30 +71,30 @@
             - name: Остановить docker-compose
               command: docker-compose down
               args:
-                  chdir: "{{PATH_NEXTCLOUD}}/conf"
+                  chdir: "{{ PATH_NEXTCLOUD }}/conf"
 
             - name: Сборка docker-compose
               command: docker-compose build
               args:
-                  chdir: "{{PATH_NEXTCLOUD}}/conf"
+                  chdir: "{{ PATH_NEXTCLOUD }}/conf"
 
             - name: Запуск docker-compose
               command: docker-compose up -d
               args:
-                  chdir: "{{PATH_NEXTCLOUD}}/conf"
+                  chdir: "{{ PATH_NEXTCLOUD }}/conf"
 
             - name: Разрешить все подключения от разных доменных имен в файле config.php
               ansible.builtin.replace:
-                  path: "{{PATH_NEXTCLOUD_DATA}}/nextcloud/config/config.php"
+                  path: "{{ PATH_NEXTCLOUD_DATA }}/nextcloud/config/config.php"
                   regexp: "^(\\s*'trusted_domains'\\s*=>).*"
                   replace: "\\1 array(0 => '*'),"
 
             - name: Остановить docker-compose
               command: docker-compose down
               args:
-                  chdir: "{{PATH_NEXTCLOUD}}/conf"
+                  chdir: "{{ PATH_NEXTCLOUD }}/conf"
 
             - name: Запуск docker-compose
               command: docker-compose up -d
               args:
-                  chdir: "{{PATH_NEXTCLOUD}}/conf"
+                  chdir: "{{ PATH_NEXTCLOUD }}/conf"

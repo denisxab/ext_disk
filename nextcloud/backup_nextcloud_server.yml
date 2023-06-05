@@ -6,11 +6,12 @@
       LOCAL_PATH_BACKUP: "{{LOCAL_PATH_BACKUP}}"
       #
       #
+      PATH_NEXTCLOUD_DATA: "/mnt/extdisk/nextcloud"
       FOLDER: nextcloud_data
   tasks:
       - name: Копирование папки conf на удаленный сервер
         synchronize:
-            src: "/mnt/extdisk/nextcloud/{{FOLDER}}"
+            src: "{{PATH_NEXTCLOUD_DATA}}/{{FOLDER}}"
             dest: "{{LOCAL_PATH_BACKUP}}"
             recursive: yes
             mode: "pull"

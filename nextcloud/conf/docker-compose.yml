@@ -3,7 +3,7 @@ version: "3"
 services:
     db:
         image: postgres:alpine
-        # restart: always
+        restart: always
         volumes:
             - "${NEXTCLOUD_DATA}/db:/var/lib/postgresql/data:z"
         env_file:
@@ -15,7 +15,7 @@ services:
 
     app:
         image: nextcloud:fpm-alpine
-        # restart: always
+        restart: always
         volumes:
             # Основыныая папка NextCloud
             - "${NEXTCLOUD_DATA}/nextcloud:/var/www/html:z"
@@ -32,7 +32,7 @@ services:
 
     web:
         build: ./web
-        # restart: always
+        restart: always
         ports:
             - 8080:80
             - 443:443
@@ -47,7 +47,7 @@ services:
 
     cron:
         image: nextcloud:fpm-alpine
-        # restart: always
+        restart: always
         volumes:
             - "${NEXTCLOUD_DATA}/nextcloud:/var/www/html:z"
         entrypoint: /cron.sh

@@ -103,6 +103,14 @@ ansible-playbook -i ./inventory.yml -l ИмяСервера1 ./wireguard/install
 
 Данная статья будет полезна как начинающим пользователям, которые только начинают знакомиться с NextCloud, так и опытным системным администраторам, которые хотят упростить и автоматизировать процесс развёртывания и управления своим облачным хранилищем.
 
+## Подготовка
+
+Создайте на сервере папку по пути `/mnt/extdisk`. Это может быть смонтированный внешний диск
+
+```bash
+mkdir /mnt/extdisk
+```
+
 ## Единая команда для развёртывания NextCloud на HTTPS
 
 Пример команды для развёртывания NextCloud на HTTPS можно найти в репозитории NextCloud Docker на GitHub: [https://github.com/nextcloud/docker/tree/master/.examples/docker-compose/insecure/postgres/fpm](https://github.com/nextcloud/docker/tree/master/.examples/docker-compose/insecure/postgres/fpm).

@@ -21,7 +21,7 @@
             - name: Установка WireGuard-tools
               apt:
                   name:
-                      # Не устаналиваейте "wireguard" он ломает доступ в интернет. Устанавливайте "wireguard-tools"
+                      # Не устаналивайте "wireguard" он ломает доступ в интернет. Устанавливайте "wireguard-tools"
                       - wireguard-tools
                   state: present
 
@@ -96,7 +96,7 @@
             # - name: Запуск docker-compose
             #   command: docker-compose up -d
             #   args:
-            #       chdir: "{{ PATH_NEXTCLOUD_CONF }}/conf"
+            #     chdir: "{{ PATH_NEXTCLOUD_CONF }}/conf"
 
       - name: Добавление docker-compose в автозапуск systemd
         block:
@@ -115,7 +115,7 @@
                   state: started
                   enabled: yes
 
-      - name: Изменение config.php в перый раз
+      - name: Изменение config.php в первый раз
         block:
             - name: Разрешить все подключения от разных доменных имен в файле config.php
               ansible.builtin.replace:

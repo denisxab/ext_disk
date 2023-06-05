@@ -2,7 +2,7 @@
   apt:
     update_cache: yes
 
-- name: Установить Docker зависимости
+- name: Установить зависимостей для Docker
   apt:
     name:
       - gnupg
@@ -22,7 +22,7 @@
     repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
     state: present
 
-- name: Установка зависимостей
+- name: Установка Docker
   apt:
     name: "{{ item }}"
     state: present

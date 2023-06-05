@@ -11,40 +11,47 @@
       POSTGRES_DB: "{{POSTGRES_USER}}"
       PATH_NEXTCLOUD: "/home/nextcloud"
       PATH_NEXTCLOUD_DATA: "/mnt/extdisk/nextcloud"
+      NAME_WIREGUARD_CONF: nextcloudserver
   tasks:
-      - name: Установка wireguard
-        apt:
-            name:
-                - wireguard
-            state: present
+      - name: Настрйока wireguard
+        tags: wireguard
+        block:
+            - name: Обновление apt
+              apt:
+                  update_cache: yes
 
-      - name: Скопировать конфигурацию для wireguard
-        synchronize:
-            src: "../self_config/orangepizero2.conf"
-            dest: "/etc/wireguard"
-            delete: yes
+            - name: Установка wireguard
+              apt:
+                  name:
+                      - wireguard
+                  state: present
 
-      - name: Включить Wireguard VPN
-        command: wg-quick down orangepizero2
+            - name: Скопировать конфигурацию для wireguard
+              synchronize:
+                  src: "../self_config/{{NAME_WIREGUARD_CONF}}.conf"
+                  dest: "/etc/wireguard"
+                  delete: yes
 
-      - name: Выключить Wireguard VPN
-        command: wg-quick up orangepizero2
+            - name: Запустить WireGuard
+              command: "systemctl start wg-quick@{{NAME_WIREGUARD_CONF}}"
 
-      - name: Установка Docker
-        import_tasks: ../script/docker_install.yml
+            - name: Добавить WireGuard в автозапуск
+              command: "systemctl enable wg-quick@{{NAME_WIREGUARD_CONF}}"
 
-      - name: Копирование папки conf на удаленный сервер
-        synchronize:
-            src: "./conf"
-            dest: "{{PATH_NEXTCLOUD}}"
-            delete: yes
+      - name: Копировать конфигурации для запуска NextCloud
+        block:
+            - name: Копирование папки conf на удаленный сервер
+              synchronize:
+                  src: "./conf"
+                  dest: "{{PATH_NEXTCLOUD}}"
+                  delete: yes
 
-      - name: Создание файла из шаблона
-        template:
-            src: ./conf/db.j2
-            dest: "{{PATH_NEXTCLOUD}}/conf/db.env"
+            - name: Создание файла из шаблона
+              template:
+                  src: ./conf/db.j2
+                  dest: "{{PATH_NEXTCLOUD}}/conf/db.env"
 
-      - name: Создание SSL сертификата
+      - name: Настрйока SSL сертификата
         block:
             - name: Проверка наличия SSL-сертификата
               stat:
@@ -59,8 +66,11 @@
               shell: "mkdir -p {{ PATH_NEXTCLOUD }}/ssl && openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout {{ PATH_NEXTCLOUD }}/ssl/private_key -out {{ PATH_NEXTCLOUD }}/ssl/certificate.crt -subj '/C=RU'"
               when: not ssl_cert_files.results[0].stat.exists or not ssl_cert_files.results[1].stat.exists
 
-      - name: docker-compose
+      - name: Настройка docker-compose
         block:
+            - name: Установка Docker
+              import_tasks: ../script/docker_install.yml
+
             - name: Остановить docker-compose
               command: docker-compose down
               args:

@@ -127,7 +127,7 @@ ansible-playbook -i ./inventory.yml -l ИмяСервера1 ./wireguard/install
     ```
 
     ```txt
-    UUID=cf0d6629-2bd3-4874-94bf-053e750ae973   /mnt/extdisk   btrfs   defaults   0   2
+    UUID=cf0d6629-2bd3-4874-94bf-053e750ae973   /mnt/extdisk   auto   defaults   1   0
     ```
 
     - `cf0d6629-2bd3-4874-94bf-053e750ae973` - Это примерный UUID
@@ -157,10 +157,11 @@ ansible-playbook -i ./inventory.yml -l ИмяСервера1 ./wireguard/install
 1. Выполните следующую команду, чтобы передать переменные из командной строки во время запуска `docker-compose`:
 
 ```bash
-ansible-playbook -i ./inventory.yml -l ИмяСервера1 ./nextcloud/install_nextcloud_server.yml -e POSTGRES_PASSWORD=10101010
+ansible-playbook -i ./inventory.yml -l ИмяСервера1 ./nextcloud/install_nextcloud_server.yml -e POSTGRES_PASSWORD=10101010 -e UUID_EXTERNAL_DISK=cf0d6629-2bd3-4874-94bf-053e750ae973
 ```
 
 -   Параметр `POSTGRES_PASSWORD` - пароль для базы данных PostgreSQL.
+-   Параметр `UUID_EXTERNAL_DISK` - uuid вашего внешнего диска, его можно получить через `blkid`
 
 2. Подождите около 2 минут, чтобы все приложения запустились.
 3. Перейдите по URL-адресу `https://Хост`.

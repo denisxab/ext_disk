@@ -3,14 +3,55 @@
   hosts: all
   become: true
   vars:
+      # INPUT - Пароль для БД
+      POSTGRES_PASSWORD: "{{POSTGRES_PASSWORD}}"
+      # INPUT - UUID внешнего диска
+      UUID_EXTERNAL_DISK: "{{UUID_EXTERNAL_DISK}}"
+      #
+      #
       POSTGRES_USER: "nextcloud"
       POSTGRES_DB: "{{ POSTGRES_USER }}"
       PATH_NEXTCLOUD_CONF: "/home/nextcloud"
-      PATH_NEXTCLOUD_DATA: "/mnt/extdisk/nextcloud"
+      PATH_TO_EXTERNAL: "/mnt/extdisk"
+      PATH_NEXTCLOUD_DATA: "{{ PATH_TO_EXTERNAL }}/nextcloud"
       NAME_WIREGUARD_CONF: nextcloudserver
       PATH_TO_DOCKER_COMPOSE_FILE: "{{ PATH_NEXTCLOUD_CONF }}/conf"
-
   tasks:
+      # - name: Добавить автомотнирование внешнего диска 
+      #   when: UUID_EXTERNAL_DISK
+      #   block:
+      #       - name: Создание точки монтирования
+      #         file:
+      #             path: "{{ PATH_TO_EXTERNAL }}"
+      #             state: directory
+      #             mode: "0755"
+
+      #       - name: Проверка наличия записи в /etc/fstab
+      #         command: grep -q '^UUID=.*\s+{{ PATH_TO_EXTERNAL }}\s+.*$' /etc/fstab
+      #         changed_when: false
+      #         register: fstab_entry_check
+
+      #       - name: Замена или создание записи в /etc/fstab
+      #         lineinfile:
+      #           path: /etc/fstab
+      #           line: "UUID={{UUID_EXTERNAL_DISK}}   {{ PATH_TO_EXTERNAL }}   auto   defaults   1   0"
+      #         when: fstab_entry_check.rc != 0
+              
+      #       - name: Замена записи в /etc/fstab
+      #         replace:
+      #             path: /etc/fstab
+      #             regexp: "^UUID=.*\s+{{PATH_TO_EXTERNAL}}\s+.*$"
+      #             replace: "UUID={{UUID_EXTERNAL_DISK}}   {{PATH_TO_EXTERNAL}}   auto   defaults   1   0"
+
+      #       - name: Выполнить монтирование
+      #         command: mount -a
+
+      #       - name: Проверка успешного монтирования
+      #         command: ls "{{ PATH_TO_EXTERNAL }}"
+      #         changed_when: false
+      #         ignore_errors: yes
+      #         when: mount_result.changed
+
       - name: Настройка WireGuard
         tags: wireguard
         block:

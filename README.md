@@ -107,9 +107,48 @@ ansible-playbook -i ./inventory.yml -l ИмяСервера1 ./wireguard/install
 
 Создайте на сервере папку по пути `/mnt/extdisk`. Это может быть смонтированный внешний диск
 
-```bash
-mkdir /mnt/extdisk
-```
+1. Посмотреть список всех дисков
+
+    ```bash
+    sudo lsblk # Получить список дисков и их размер
+    sudo blkid # Получить UID диска
+    ```
+
+2. Создать точку(папку) монтирование для диска
+
+    ```bash
+    sudo mkdir /mnt/extdisk
+    ```
+
+3. Добавить диск в конфигурационный файл `/etc/fstab`
+
+    ```bash
+    sudo nano /etc/fstab
+    ```
+
+    ```txt
+    UUID=cf0d6629-2bd3-4874-94bf-053e750ae973   /mnt/extdisk   btrfs   defaults   0   2
+    ```
+
+    - `cf0d6629-2bd3-4874-94bf-053e750ae973` - Это примерный UUID
+
+4. Теперь можно применить изменения, выполнив команду . Это применит настройки из файла fstab и монтирует ваш внешний диск в указанную точку монтирования.
+
+    ```bash
+    sudo mount -a
+    ```
+
+    Или это можно сделать вручную
+
+    ```bash
+    sudo mount /dev/sdX1 /mnt/extdisk
+    ```
+
+    Чтобы от монтировать диск, выполните:
+
+    ```bash
+    sudo umount /mnt/extdisk
+    ```
 
 ## Единая команда для развёртывания NextCloud на HTTPS
 

@@ -187,14 +187,3 @@ ansible-playbook -i ./inventory.yml -v -l ИмяСервера1 ./nextcloud/back
     - ![](./img/Screenshot_20230602_090841.png)
     1. Новое доменное имя.
     2. Адрес сервера.
-4. Теперь нужно добавить новое доменное имя в список разрешенных для NextCloud. Для этого подключитесь к серверу с NextCloud и откройте файл `/mnt/extdisk/nextcloud/conf/config.php`. В нём добавьте новое доменное имя. Вот пример:
-
-    ```php
-    'trusted_domains' =>
-    [
-        # Ip сервера
-        '95.163.237.199',
-        # Доменное имя
-        'nextcloud.ddns.net',
-    ],
-    ```

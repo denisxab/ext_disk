@@ -1,0 +1,22 @@
+---
+- name: Скачать конфигурации filebrowser
+  hosts: all
+  become: true
+  vars:
+      path_conf: /home/filebrowser_conf
+
+  tasks:
+      - name: Создать папку на локальной машине если ей нет.
+        become: false
+        file:
+            path: "./filebrowser_conf"
+            state: directory
+        delegate_to: localhost
+
+      - name: "Скачать конфигуарции из папки {{path_conf}}."
+        synchronize:
+            src: "{{path_conf}}/"
+            dest: "./filebrowser_conf"
+            mode: "pull"
+            recursive: true
+            delete: yes

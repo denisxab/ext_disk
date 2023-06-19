@@ -1,0 +1,11 @@
+version: "3"
+services:
+    filebrowser:
+        container_name: filebrowser_container
+        build:
+            context: .
+        volumes:
+            - "/home/download:/srv"
+            - "/home/filebrowser_conf:/filebrowser_conf"
+        ports:
+            - 8080:80

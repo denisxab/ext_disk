@@ -1,0 +1,61 @@
+---
+- name: Монтировать локальную папку на удаленный сервер
+  hosts: all
+  vars:
+      # INPUT
+      ## Имя локального пользователя
+      LOCAL_USER: "{{LOCAL_USER}}"
+      ## Путь который будет монтироваться с локальной машины на удаленную
+      LOCAL_PATH: "{{LOCAL_PATH}}"
+      ## Пароль от локального пользователя
+      LOCAL_PASSWORD: "{{LOCAL_PASSWORD}}"
+
+      #
+      free_port_connect: 8998
+      PATH_L: "{{LOCAL_USER}}@localhost:{{LOCAL_PATH}}"
+
+  tasks:
+      - name: Debug
+        ansible.builtin.debug:
+            msg: "{{PATH_L}}"
+
+      - name: Создать обратный SSH туннель из локальной папки на удаленный сервер
+        become: false
+        shell: "ssh -N -R {{free_port_connect}}:localhost:{{ansible_port}} {{ansible_user}}@{{ansible_host}} &"
+        delegate_to: localhost
+
+      - name: Установка sshpass, sshfs
+        apt:
+            name:
+                - sshpass
+                - sshfs
+            update_cache: yes
+            state: present
+
+      - name: Проверка наличия SSH ключа
+        stat:
+            path: "$HOME/.ssh/id_rsa"
+        register: path_id_rsa
+
+      - name: Создать ключи если их нет
+        shell: ssh-keygen -t rsa -f \"$HOME/.ssh/id_rsa\" -q -N ""
+        when: not path_id_rsa.stat.exists
+
+      - name: Пробросить ключа с удаленного сервера на локальный, чтобы входить без пароля
+        shell: 'sshfs -o StrictHostKeyChecking=no -p {{free_port_connect}} "{{LOCAL_USER}}@localhost:{{LOCAL_PATH}}" /home/download'
+        ignore_errors: yes
+
+      - name: Создание папки на удаленном сервере
+        block:
+            - name: Создание папки для filebrowser
+              file:
+                  path: "{{item}}"
+                  state: directory
+                  mode: "0755"
+              loop:
+                  - "/home/download"
+
+      - name: Смонтировать локальную папку на удаленный сервер через программу sshfs
+        shell: 'ssh {{ansible_user}}@{{ansible_host}} "sshfs -p {{free_port_connect}} \"{{PATH_L}}\" /home/download/"'
+        delegate_to: localhost
+        ignore_errors: yes

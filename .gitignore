@@ -6,3 +6,5 @@ inventory.yml
 self_config
 backup_root_server
 fix.md
+filebrowser/filebrowser_conf/*
+*.log

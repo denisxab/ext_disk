@@ -1,0 +1,48 @@
+---
+- name: Установка и настройка сервера filebrowser
+  hosts: all
+  become: true
+  vars:
+      path_docker: /home/filebrowser
+      path_conf: /home/filebrowser_conf
+      path_data: /home/download
+
+  tasks:
+      - name: Установка Docker, docker-compose
+        import_tasks: ../script/docker_install.yml
+
+      - name: Создание папки на удаленном сервере
+        block:
+            - name: Создание папки для filebrowser
+              file:
+                  path: "{{item}}"
+                  state: directory
+                  mode: "0755"
+              loop:
+                  - "{{path_docker}}"
+                  - "{{path_conf}}"
+                  - "{{path_data}}"
+
+      - name: Запуск docker-compose
+        block:
+            - name: Копирование docker-compose файла
+              synchronize:
+                  src: ./
+                  dest: "{{path_docker}}"
+                  mode: "push"
+                  delete: yes
+
+            - name: Собираем docker-compose
+              command: "docker-compose build"
+              args:
+                  chdir: "{{path_docker}}"
+
+            - name: Остановка docker-compose
+              command: "docker-compose down"
+              args:
+                  chdir: "{{path_docker}}"
+
+            - name: Запуск docker-compose
+              command: "docker-compose up -d"
+              args:
+                  chdir: "{{path_docker}}"

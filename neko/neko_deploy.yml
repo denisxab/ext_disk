@@ -1,0 +1,54 @@
+---
+- name: Deploy Neko
+  hosts: all
+  become: true
+  vars:
+      # Пароль для пользователя admin
+      NEKO_PASSWORD_ADMIN: "{{ NEKO_PASSWORD_ADMIN }}"
+      NEKO_SCREEN: '1280x1080@60'
+      shm_size: "2gb"
+
+  tasks:
+      - name: Check if Docker is installed
+        command: docker --version
+        register: docker_installed
+        ignore_errors: true
+
+      - name: Install Docker
+        shell: curl -sSL https://get.docker.com/ | CHANNEL=stable bash
+        when: docker_installed.rc != 0
+
+      - name: Check if Docker Compose is installed
+        command: docker-compose --version
+        register: docker_compose_installed
+        ignore_errors: true
+
+      - name: Install Docker Compose
+        shell: |
+            sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
+        when: docker_compose_installed.rc != 0
+
+      - name: Download docker-compose.yaml file
+        shell: wget https://raw.githubusercontent.com/m1k1o/neko/master/docker-compose.yaml
+
+      - name: Change shm_size
+        replace:
+            path: docker-compose.yaml
+            regexp: "shm_size:.*"
+            replace: 'shm_size: "{{ shm_size }}"'
+
+      - name: Change NEKO_SCREEN
+        replace:
+            path: docker-compose.yaml
+            regexp: "NEKO_SCREEN:.*"
+            replace: 'NEKO_SCREEN: "{{ NEKO_SCREEN }}"'
+
+      - name: Change NEKO_PASSWORD_ADMIN
+        replace:
+            path: docker-compose.yaml
+            regexp: "NEKO_PASSWORD_ADMIN:.*"
+            replace: 'NEKO_PASSWORD_ADMIN: "{{ NEKO_PASSWORD_ADMIN }}"'
+
+      - name: Start Docker containers
+        shell: sudo docker-compose up -d
